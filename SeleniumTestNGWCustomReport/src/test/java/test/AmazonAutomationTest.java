@@ -5,14 +5,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
-
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
+import org.testng.Assert;
+import org.testng.annotations.*;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import pages.HomePage;
@@ -20,75 +21,126 @@ import pages.MobilesPage;
 
 public class AmazonAutomationTest {
 
-	private WebDriver driver;
+    private WebDriver driver;
 
-	HomePage homePage;
+    HomePage homePage;
 
-	MobilesPage mobilesPage;
+    MobilesPage mobilesPage;
 
-	@BeforeMethod()
-	public void navigateToApplication() throws IOException
-	{
-		WebDriverManager.chromedriver().setup();
+    ExtentReports extentReports;
 
-		driver=new ChromeDriver();
+    ExtentTest logger;
 
-		driver.get(getURLDetails("applicationURL"));
+    ExtentHtmlReporter extentHtmlReporter;
 
-		driver.manage().window().maximize();
+    @BeforeTest
+    public void startReport() {
+        extentHtmlReporter=new ExtentHtmlReporter("\\SeleniumWTestNG\\SeleniumTestNGWCustomReport\\test-output\\STMExtentReport.html");
 
-		driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        extentReports=new ExtentReports();
+        extentReports.attachReporter(extentHtmlReporter);
+        extentReports.setSystemInfo("OS", "Windows");
+        extentReports.setSystemInfo("AUT", "Amazon.in");
+        extentReports.setSystemInfo("Tester", "Bhavesh Sachanandani");
+    }
 
-		homePage=new HomePage(driver);
+    @BeforeMethod()
+    public void navigateToApplication() throws IOException {
+        WebDriverManager.chromedriver().setup();
 
-		mobilesPage=new MobilesPage(driver);
+        driver = new ChromeDriver();
 
-	}
+        driver.get(getURLDetails("applicationURL"));
 
-	//Test 1 scenario
-	@Test(priority=1)	
-	public void getSamsungMobiles() throws InterruptedException{
+        driver.manage().window().maximize();
 
-		homePage.selectMobile(driver).click();;
+        homePage = new HomePage(driver);
 
-		mobilesPage.searchBoxEntry(driver).sendKeys("Samsung");
+        mobilesPage = new MobilesPage(driver);
 
-		mobilesPage.searchBoxSelect(driver).click();
+    }
 
-		mobilesPage.waitForElementList(mobilesPage.mobileNames(driver));
+    //Positive Samsung mobile count test scenario
+    @Test(priority = 1)
+    public void getSamsungMobiles() throws InterruptedException {
 
-		List<WebElement> mobileNames=mobilesPage.mobileNames(driver);
+        ExtentTest logger=extentReports.createTest("Positive Scenario for total number of Samsung Mobiles on Amazon");
 
-		for(WebElement mobile: mobileNames)
-		{
-			System.out.println("Mobiles are:"+mobile.getText());
-		}
+        logger.log(Status.INFO,"Selecting Mobiles Section");
 
-		/*String URL = driver.getCurrentUrl();
-		//System.out.println("URL is:"+URL);
-		Assert.assertTrue(URL.contains("blog"));
+        homePage.selectMobile(driver).click();
 
-		int searchCount=connectCOOBlog.getSearchResults();
-		//System.out.println("Search Count is:"+searchCount);
-		Assert.assertEquals(searchCount, 6);*/
+        mobilesPage.searchBoxEntry(driver).sendKeys("Samsung");
 
-	}
+        mobilesPage.searchBoxSelect(driver).click();
 
-	@AfterMethod
-	public void quitDriver() throws Exception {
-		driver.quit();
-	}
+        logger.log(Status.INFO,"Searching Samsung Mobiles");
 
-	public static String getURLDetails(String key) throws IOException
-	{
-		Properties prop = new Properties();
-		String fileName = "\\SeleniumWTestNG\\SeleniumTestNGWCustomReport\\src\\test\\java\\resources\\data.config";
-		try (FileInputStream fis = new FileInputStream(fileName)) {
-			prop.load(fis);
-		} catch (FileNotFoundException ex) {
+        mobilesPage.waitForElementList(mobilesPage.mobileNames(driver));
 
-		} 
-		return prop.getProperty(key);
-	}
+        List<WebElement> mobileNames = mobilesPage.mobileNames(driver);
+
+        for (WebElement mobile : mobileNames) {
+            System.out.println("Mobiles are:" + mobile.getText());
+        }
+
+        int mobileCount = mobileNames.size();
+        System.out.println("Search Count is:" + mobileCount);
+        Assert.assertEquals(mobileCount, 30);
+        logger.log(Status.PASS,"Samsung mobile count is as expected");
+
+    }
+
+    //Negative Samsung mobile count test scenario
+    @Test(priority = 2)
+    public void getSamsungMobilesNegative() throws InterruptedException {
+
+        ExtentTest logger=extentReports.createTest("Negative Scenario for total number of Samsung Mobiles on Amazon");
+
+        logger.log(Status.INFO,"Selecting Mobiles Section");
+
+        homePage.selectMobile(driver).click();
+
+        mobilesPage.searchBoxEntry(driver).sendKeys("Samsung");
+
+        mobilesPage.searchBoxSelect(driver).click();
+
+        logger.log(Status.INFO,"Searching Samsung Mobiles");
+
+        mobilesPage.waitForElementList(mobilesPage.mobileNames(driver));
+
+        List<WebElement> mobileNames = mobilesPage.mobileNames(driver);
+
+        for (WebElement mobile : mobileNames) {
+            System.out.println("Mobiles are:" + mobile.getText());
+        }
+
+        int mobileCount = mobileNames.size();
+        System.out.println("Search Count is:" + mobileCount);
+        logger.log(Status.FAIL,"Samsung mobile count is not as expected");
+        Assert.assertEquals(mobileCount, 32);
+    }
+
+    @AfterMethod
+    public void quitDriver() throws Exception {
+        driver.quit();
+    }
+
+    @AfterTest
+    public void cleanUp()
+    {
+        extentReports.flush();
+    }
+
+    public static String getURLDetails(String key) throws IOException {
+        Properties prop = new Properties();
+        String fileName = "\\SeleniumWTestNG\\SeleniumTestNGWCustomReport\\src\\test\\java\\resources\\data.config";
+        try (FileInputStream fis = new FileInputStream(fileName)) {
+            prop.load(fis);
+        } catch (FileNotFoundException ex) {
+
+        }
+        return prop.getProperty(key);
+    }
 
 }
