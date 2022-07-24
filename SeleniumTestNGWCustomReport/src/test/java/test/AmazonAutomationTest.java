@@ -35,13 +35,13 @@ public class AmazonAutomationTest {
 
     @BeforeTest
     public void startReport() {
-        extentHtmlReporter=new ExtentHtmlReporter("\\SeleniumWTestNG\\SeleniumTestNGWCustomReport\\test-output\\STMExtentReport.html");
+        extentHtmlReporter=new ExtentHtmlReporter("\\TestNGCustomReport\\SeleniumWTestNG\\SeleniumTestNGWCustomReport\\test-output\\STMExtentReport.html");
 
         extentReports=new ExtentReports();
         extentReports.attachReporter(extentHtmlReporter);
         extentReports.setSystemInfo("OS", "Windows");
         extentReports.setSystemInfo("AUT", "Amazon.in");
-        extentReports.setSystemInfo("Tester", "Bhavesh Sachanandani");
+        extentReports.setSystemInfo("Tester", "Bhavesh Dilip");
     }
 
     @BeforeMethod()
@@ -86,7 +86,7 @@ public class AmazonAutomationTest {
 
         int mobileCount = mobileNames.size();
         System.out.println("Search Count is:" + mobileCount);
-        Assert.assertEquals(mobileCount, 30);
+        Assert.assertEquals(mobileCount, 32);
         logger.log(Status.PASS,"Samsung mobile count is as expected");
 
     }
@@ -118,7 +118,7 @@ public class AmazonAutomationTest {
         int mobileCount = mobileNames.size();
         System.out.println("Search Count is:" + mobileCount);
         logger.log(Status.FAIL,"Samsung mobile count is not as expected");
-        Assert.assertEquals(mobileCount, 32);
+        Assert.assertEquals(mobileCount, 30);
     }
 
     @AfterMethod

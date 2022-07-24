@@ -27,6 +27,6 @@ public class MobilesPage extends Page {
 	public List<WebElement> mobileNames(WebDriver driver)
 	{
 
-		return (driver.findElements(By.xpath("//div[@class='sg-row'][2]/descendant::h2/a/span")));
+		return (driver.findElements(By.xpath("//span[@class='a-size-medium a-color-base a-text-normal']")));
 	}
 }
